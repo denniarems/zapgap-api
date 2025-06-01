@@ -95,8 +95,7 @@ const chatRoute = createRoute({
           schema: SimplifiedChatResponseSchema,
         },
       },
-      description:
-        "Successful chat response from Langflow API. Returns full response by default, or simplified message when chatId query parameter is provided.",
+      description: "Successful chat response from Langflow API",
     },
     400: {
       content: {
