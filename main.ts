@@ -92,10 +92,12 @@ const chatRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: SimplifiedChatResponseSchema,
+          schema: z.union([LangflowResponseSchema, SimplifiedChatResponseSchema]).openapi({
+            description: 'Full Langflow response (default) or simplified message response (when chatId is provided)'
+          }),
         },
       },
-      description: "Successful chat response from Langflow API",
+      description: "Successful chat response from Langflow API. Returns full response by default, or simplified message when chatId query parameter is provided.",
     },
     400: {
       content: {
@@ -135,7 +137,7 @@ app.openapi(chatRoute, async (c) => {
       input_value: body.msg,
       output_type: "chat",
       input_type: "chat",
-      session_id: query.chatId || "", // Use chatId if provided, otherwise default to 'user_1'
+      session_id: query.chatId || "user_1", // Use chatId if provided, otherwise default to 'user_1'
     };
 
     // Build Langflow API URL
@@ -166,37 +168,43 @@ app.openapi(chatRoute, async (c) => {
     // Handle regular JSON response (streaming not supported in OpenAPI schema)
     const langflowResponse: LangFlowResponse = await response.json();
 
-    // Extract the latest message from the nested response structure
-    try {
-      const latestMessage = langflowResponse.outputs?.[0]?.outputs?.[0]?.results
-        ?.message?.text;
-      if (latestMessage) {
-        return c.json({
-          message: latestMessage,
-          session_id: langflowResponse.session_id,
-        }, 200);
-      } else {
-        // Fallback: try to get message from artifacts or messages array
-        const artifactMessage = langflowResponse.outputs?.[0]?.outputs?.[0]
-          ?.artifacts?.message;
-        const messageFromArray = langflowResponse.outputs?.[0]?.outputs?.[0]
-          ?.messages?.[0]?.message;
+    // Check if chatId is provided for simplified response
+    if (query.chatId) {
+      // Extract the latest message from the nested response structure
+      try {
+        const latestMessage = langflowResponse.outputs?.[0]?.outputs?.[0]?.results
+          ?.message?.text;
+        if (latestMessage) {
+          return c.json({
+            message: latestMessage,
+            session_id: langflowResponse.session_id,
+          }, 200);
+        } else {
+          // Fallback: try to get message from artifacts or messages array
+          const artifactMessage = langflowResponse.outputs?.[0]?.outputs?.[0]
+            ?.artifacts?.message;
+          const messageFromArray = langflowResponse.outputs?.[0]?.outputs?.[0]
+            ?.messages?.[0]?.message;
 
-        const fallbackMessage = artifactMessage || messageFromArray ||
-          "No message found in response";
+          const fallbackMessage = artifactMessage || messageFromArray ||
+            "No message found in response";
+          return c.json({
+            message: fallbackMessage,
+            session_id: langflowResponse.session_id,
+          }, 200);
+        }
+      } catch (extractError) {
+        console.error("Error extracting message:", extractError);
         return c.json({
-          message: fallbackMessage,
-          session_id: langflowResponse.session_id,
-        }, 200);
+          error: "Error extracting message from response",
+          message: extractError instanceof Error
+            ? extractError.message
+            : "Unknown extraction error",
+        }, 500);
       }
-    } catch (extractError) {
-      console.error("Error extracting message:", extractError);
-      return c.json({
-        error: "Error extracting message from response",
-        message: extractError instanceof Error
-          ? extractError.message
-          : "Unknown extraction error",
-      }, 500);
+    } else {
+      // Return full response when chatId is not provided
+      return c.json(langflowResponse, 200);
     }
   } catch (error) {
     console.error("Chat endpoint error:", error);
