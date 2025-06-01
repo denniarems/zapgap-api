@@ -11,26 +11,6 @@ import {
   SimplifiedChatResponseSchema,
 } from "./schemas.ts";
 
-// Load environment variables from .env file
-try {
-  const envText = await Deno.readTextFile(".env");
-  const envLines = envText.split("\n");
-  for (const line of envLines) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith("#")) {
-      const [key, ...valueParts] = trimmed.split("=");
-      if (key && valueParts.length > 0) {
-        Deno.env.set(key, valueParts.join("="));
-      }
-    }
-  }
-} catch (error) {
-  console.warn(
-    "Could not load .env file:",
-    error instanceof Error ? error.message : "Unknown error",
-  );
-}
-
 const app = new OpenAPIHono();
 
 app.use('/*', cors({
