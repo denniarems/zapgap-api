@@ -5,6 +5,8 @@ A Deno-based API server that integrates with Langflow for chat functionality.
 ## Features
 
 - **POST /chat endpoint** - Accepts user messages and forwards them to Langflow API
+- **Flexible response formats** - Full Langflow response or simplified message-only response
+- **Optional query parameters** - Use `chatId` parameter for simplified responses
 - **Environment-based configuration** - Secure handling of API tokens and endpoints
 - **Streaming support** - Handles both regular JSON and streaming responses from Langflow
 - **TypeScript support** - Full type safety with Langflow response interfaces
@@ -66,6 +68,9 @@ Health check endpoint that returns a simple message.
 
 Send a message to the Langflow API and receive a response.
 
+**Query Parameters:**
+- `chatId` (optional): When provided, returns only the latest message text instead of the full response
+
 **Request:**
 ```json
 {
@@ -73,7 +78,7 @@ Send a message to the Langflow API and receive a response.
 }
 ```
 
-**Response (Success - 200):**
+**Response (Success - 200) - Full Response (default):**
 ```json
 {
   "session_id": "user_1",
@@ -97,6 +102,13 @@ Send a message to the Langflow API and receive a response.
       ]
     }
   ]
+}
+```
+
+**Response (Success - 200) - Simplified Response (when chatId is provided):**
+```json
+{
+  "message": "Hello! I'm here and ready to assist you. How can I help you today?"
 }
 ```
 
@@ -129,8 +141,17 @@ Send a message to the Langflow API and receive a response.
 ```
 
 **Example Usage:**
+
+Full response (default):
 ```bash
 curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"msg": "Hello, how are you?"}'
+```
+
+Simplified response (with chatId):
+```bash
+curl -X POST "http://localhost:8000/chat?chatId=simple" \
   -H "Content-Type: application/json" \
   -d '{"msg": "Hello, how are you?"}'
 ```

@@ -11,8 +11,8 @@ export const ChatRequestSchema = z.object({
 // Query parameter schema
 export const ChatQuerySchema = z.object({
   chatId: z.string().optional().openapi({
-    description: 'Optional parameter to return only the latest message text instead of the full response',
-    example: 'simple'
+    description: 'Optional chat session identifier. When provided, it will be used as the session_id for the Langflow API and the response will return only the latest message text instead of the full response',
+    example: 'user_123'
   })
 }).openapi('ChatQuery')
 
@@ -160,6 +160,10 @@ export const SimplifiedChatResponseSchema = z.object({
   message: z.string().openapi({
     description: 'The latest message text from the AI assistant',
     example: 'Hello! I\'m here and ready to assist you. How can I help you today?'
+  }),
+  session_id: z.string().optional().openapi({
+    description: 'Session ID for the chat conversation (same as the provided chatId)',
+    example: 'user_123'
   })
 }).openapi('SimplifiedChatResponse')
 
