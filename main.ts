@@ -92,13 +92,7 @@ const chatRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.union([
-            LangflowResponseSchema,
-            SimplifiedChatResponseSchema,
-          ]).openapi({
-            description:
-              "Full Langflow response (default) or simplified message response (when chatId is provided)",
-          }),
+          schema: SimplifiedChatResponseSchema,
         },
       },
       description:
