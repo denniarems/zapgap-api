@@ -1,9 +1,12 @@
 {
   "imports": {
-    "hono": "jsr:@hono/hono@^4.7.11"
+    "hono": "jsr:@hono/hono@^4.7.11",
+    "@hono/zod-openapi": "npm:@hono/zod-openapi@^0.19.8",
+    "@hono/swagger-ui": "npm:@hono/swagger-ui@^0.5.1",
+    "zod": "npm:zod@^3.23.8"
   },
   "tasks": {
-    "start": "deno run --allow-net main.ts"
+    "start": "deno run --allow-net --allow-env --allow-read=.env main.ts"
   },
   "compilerOptions": {
     "jsx": "precompile",
