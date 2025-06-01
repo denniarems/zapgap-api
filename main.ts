@@ -36,7 +36,7 @@ const app = new OpenAPIHono();
 app.use('/*', cors({
   origin: ['http://localhost:8080', 'https://*.ops-agent.pages.dev', 'https://zapgap.buildverse.app'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
   maxAge: 86400,
 }) as any)
 
