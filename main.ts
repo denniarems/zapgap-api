@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import { LangFlowResponse } from "./langflow.ts";
+import { cors } from 'hono/cors'
 import {
   ChatErrorSchema,
   ChatQuerySchema,
@@ -31,6 +32,13 @@ try {
 }
 
 const app = new OpenAPIHono();
+
+app.use('/*', cors({
+  origin: ['http://localhost:8080', 'https://*.ops-agent.pages.dev', 'https://zapgap.buildverse.app'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400,
+}) as any)
 
 // Environment variables validation
 const LANGFLOW_API_TOKEN = Deno.env.get("LANGFLOW_API_TOKEN");
