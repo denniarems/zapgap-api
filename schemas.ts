@@ -12,7 +12,6 @@ export const ChatRequestSchema = z.object({
 export const ChatQuerySchema = z.object({
   chatId: z.string().optional().openapi({
     description: 'Optional chat session identifier. When provided, it will be used as the session_id for the Langflow API and the response will return only the latest message text instead of the full response',
-    example: 'user_123'
   })
 }).openapi('ChatQuery')
 
